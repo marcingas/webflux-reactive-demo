@@ -31,7 +31,10 @@ public class CustomerDao {
                 .delayElements(Duration.ofSeconds(1))
                 .doOnNext(i-> System.out.print("count: " + i))
                 .map(i->new Customer(i,"customer"+i));
-
-
+    }
+    public Flux<Customer> getCustomerList() {
+        return  Flux.range(1,20)
+                .doOnNext(i-> System.out.print("count: " + i))
+                .map(i->new Customer(i,"customer"+i));
     }
 }
