@@ -11,6 +11,8 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.when;
 
 @WebFluxTest(ProductController.class)
@@ -30,10 +32,11 @@ class ProductControllerTest {
                 .exchange()
                 .expectStatus().isOk();
     }
+
     @Test
-    public void getProductsTest(){
-        Flux<ProductDto> productDtoFlux = Flux.just(new ProductDto("102","mobile",1,1000),
-                new ProductDto("103","TV",1,500));
+    public void getProductsTest() {
+        Flux<ProductDto> productDtoFlux = Flux.just(new ProductDto("102", "mobile", 1, 1000),
+                new ProductDto("103", "TV", 1, 500));
         when(service.getProducts()).thenReturn(productDtoFlux);
 
         Flux<ProductDto> responseBody = webTestClient.get().uri("/products")
@@ -41,11 +44,48 @@ class ProductControllerTest {
                 .expectStatus().isOk()
                 .returnResult(ProductDto.class)
                 .getResponseBody();
+
         StepVerifier.create(responseBody)
                 .expectSubscription()
-                .expectNext(new ProductDto("102","mobile",1,1000))
-                .expectNext(new ProductDto("103","TV",1,500))
+                .expectNext(new ProductDto("102", "mobile", 1, 1000))
+                .expectNext(new ProductDto("103", "TV", 1, 500))
                 .verifyComplete();
+    }
+
+    @Test
+    public void getProductTest() {
+        Mono<ProductDto> productDtoMono = Mono.just(new ProductDto("102", "mobile", 1, 1000));
+        when(service.getProduct(any())).thenReturn(productDtoMono);
+
+        Flux<ProductDto> responseBody = webTestClient.get().uri("/products/102")
+                .exchange()
+                .expectStatus().isOk()
+                .returnResult(ProductDto.class)
+                .getResponseBody();
+
+        StepVerifier.create(responseBody)
+                .expectSubscription()
+                .expectNextMatches(p -> p.getName().equals("mobile"))
+                .verifyComplete();
+    }
+    @Test
+    public void updateProductTest(){
+        Mono<ProductDto> mobile = Mono.just(new ProductDto("102", "mobile", 1, 1000));
+        when(service.updateProduct(mobile,"102")).thenReturn(mobile);
+
+        webTestClient.put().uri("/products/update/102")
+                .body(Mono.just(mobile), ProductDto.class)
+                .exchange()
+                .expectStatus().isOk();
+    }
+
+    @Test
+    public void deleteProductTest(){
+        given(service.deleteProduct(any())).willReturn(Mono.empty());
+
+        webTestClient.delete().uri("/products/delete/102")
+                .exchange()
+                .expectStatus().isOk();
     }
 
 
