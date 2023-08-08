@@ -1,9 +1,13 @@
 spring:
   data:
     mongodb:
-      database:  Productsdb
       host: localhost
       port: 27017
+      username: admin
+      password: admin
+      authentication-database: admin
+      database:  Productsdb
+
 
 server:
   port: 9292
