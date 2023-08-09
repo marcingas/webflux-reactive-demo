@@ -28,7 +28,7 @@ public class ProductController {
         return productService.getProductInPriceRange(min, max);
     }
 
-    @PostMapping
+    @PostMapping("/add")
     public Mono<ProductDto> saveProduct(@RequestBody Mono<ProductDto> productDtoMono) {
         return productService.saveProduct(productDtoMono);
     }
